@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leaderboard · meelarp</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="aurora"></div>
+
+<header class="topbar">
+  <a class="brand" href="/"><span id="logo"></span> meelarp</a>
+  <span class="spacer"></span>
+  <a class="btn btn-ghost btn-sm" href="/servers">Dashboard</a>
+</header>
+
+<main class="main" style="max-width:820px;margin:0 auto">
+  <div id="content"><div class="center-screen"><div class="spinner"></div></div></div>
+</main>
+
+<script type="module">
+import { icon, logoMark } from '/icons.js';
+document.getElementById('logo').innerHTML = logoMark(30);
+
+const guildId = location.pathname.split('/')[2];
+const page = Number(new URLSearchParams(location.search).get('page') ?? 1);
+const el = document.getElementById('content');
+
+const avatar = (row) => row.avatar
+  || `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(row.user_id) >> 22n) % 6}.png`;
+
+try {
+  const res = await fetch(`/api/leaderboard/${guildId}?page=${page}`);
+  if (!res.ok) throw new Error((await res.json()).error ?? 'Unavailable');
+  const data = await res.json();
+  const pages = Math.max(1, Math.ceil(data.total / 25));
+
+  el.innerHTML = `
+    <div class="page-head" style="margin-top:24px;text-align:center">
+      ${data.guild?.icon
+        ? `<img src="https://cdn.discordapp.com/icons/${data.guild.id}/${data.guild.icon}.png?size=128"
+             style="width:74px;height:74px;border-radius:22px;margin-bottom:14px">` : ''}
+      <h1>${data.guild?.name ?? 'Leaderboard'}</h1>
+      <p style="margin:0 auto">${data.total.toLocaleString()} ranked members</p>
+    </div>
+    <div class="card">
+      ${data.rows.length ? `<table>
+        <thead><tr><th style="width:52px">#</th><th>Member</th><th style="width:96px">Level</th>
+          <th style="width:200px">Progress</th><th style="width:110px">XP</th></tr></thead>
+        <tbody>${data.rows.map((r) => `
+          <tr>
+            <td><div class="rank-badge ${r.rank <= 3 ? 'g' + r.rank : ''}">${r.rank}</div></td>
+            <td><div style="display:flex;align-items:center;gap:10px">
+              <img src="${avatar(r)}" style="width:32px;height:32px;border-radius:50%">
+              <span style="font-weight:600">${(r.username ?? r.user_id).replace(/</g, '&lt;')}</span></div></td>
+            <td><span class="pill on">lvl ${r.level}</span></td>
+            <td><div class="bar"><span style="width:${Math.round((r.into / Math.max(1, r.needed)) * 100)}%"></span></div>
+              <div style="font-size:11.5px;color:var(--text-faint);margin-top:4px">${r.into.toLocaleString()} / ${r.needed.toLocaleString()}</div></td>
+            <td class="mono">${r.xp.toLocaleString()}</td>
+          </tr>`).join('')}</tbody></table>`
+        : `<div class="empty">${icon('levels', 34)}<strong>No XP earned yet</strong>Start chatting to appear here.</div>`}
+    </div>
+    ${pages > 1 ? `<div class="row" style="justify-content:center">
+      ${page > 1 ? `<a class="btn btn-sm" href="?page=${page - 1}">Previous</a>` : ''}
+      <span class="pill">Page ${page} of ${pages}</span>
+      ${page < pages ? `<a class="btn btn-sm" href="?page=${page + 1}">Next</a>` : ''}
+    </div>` : ''}`;
+} catch (e) {
+  el.innerHTML = `<div class="empty" style="margin-top:60px">${icon('lock', 34)}
+    <strong>This leaderboard is not available</strong>${e.message}</div>`;
+}
+</script>
+</body>
+</html>

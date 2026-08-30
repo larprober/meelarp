@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>meelarp — every MEE6 feature, none of the paywall</title>
+<meta name="description" content="A self-hosted Discord bot with leveling, moderation, automod, welcome messages, role menus, feeds, giveaways, tickets and music — including everything MEE6 charges for.">
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="aurora"></div>
+
+<header class="topbar">
+  <a class="brand" href="/"><span id="logo"></span> meelarp</a>
+  <span class="spacer"></span>
+  <a class="btn btn-sm" href="/invite" id="invite-top">Add to Discord</a>
+  <a class="btn btn-primary btn-sm" href="/login">Dashboard</a>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="badge-line">
+      <span class="badge" id="b1">Self-hosted</span>
+      <span class="badge" id="b2">No premium tier</span>
+      <span class="badge" id="b3">Your data stays yours</span>
+    </div>
+    <h1>Everything MEE6 does.<br><span class="grad">Nothing behind a paywall.</span></h1>
+    <p class="lead">meelarp is a complete Discord bot and web dashboard — leveling with custom rank cards,
+      moderation, automod, welcome images, unlimited role menus and custom commands, social feeds,
+      giveaways, tickets, timers and music. Every feature MEE6 sells as Premium ships switched on.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="/invite" id="invite-hero">Add meelarp to your server</a>
+      <a class="btn" href="/login">Open the dashboard</a>
+    </div>
+    <p style="margin-top:26px;color:var(--text-faint);font-size:13.5px" id="live-stats"></p>
+  </section>
+
+  <section class="features" id="features"></section>
+
+  <section class="compare">
+    <h2 style="text-align:center;font-size:26px;margin-bottom:8px">What you would be paying for</h2>
+    <p style="text-align:center;color:var(--text-dim);margin-bottom:26px">
+      MEE6 gates these behind Premium. meelarp ships them on by default.</p>
+    <table>
+      <thead><tr><th>Feature</th><th>MEE6</th><th>meelarp</th></tr></thead>
+      <tbody id="compare-rows"></tbody>
+    </table>
+  </section>
+</main>
+
+<footer class="site-footer">
+  meelarp · self-hosted Discord bot · not affiliated with MEE6
+</footer>
+
+<script type="module">
+import { icon, logoMark } from '/icons.js';
+
+document.getElementById('logo').innerHTML = logoMark(30);
+document.getElementById('b1').insertAdjacentHTML('afterbegin', icon('lock', 15));
+document.getElementById('b2').insertAdjacentHTML('afterbegin', icon('sparkle', 15));
+document.getElementById('b3').insertAdjacentHTML('afterbegin', icon('shield', 15));
+
+const FEATURES = [
+  ['levels', 'Leveling & rank cards', 'XP curves, role rewards, per-role and per-channel multipliers, no-XP zones, voice XP, and a rank card you can restyle — background, accent, bar shape.', true],
+  ['shield', 'Moderation', 'Ban, tempban, kick, timeout, mute, warn, softban, purge with filters, lock, slowmode. Every action becomes a numbered case in a searchable log.', false],
+  ['filter', 'Automod', 'Invites, links, spam, duplicates, mass mentions, caps, word filters with presets, emoji floods, zalgo, attachments — each with its own action and an escalation ladder.', false],
+  ['welcome', 'Welcome & goodbye', 'Channel messages, embeds, DMs, boost messages, autorole with delay, sticky roles, and generated welcome banners.', true],
+  ['tag', 'Role menus', 'Unlimited menus as buttons, dropdowns or classic reactions. Unique-choice, verify and add-only modes included.', true],
+  ['terminal', 'Custom commands', 'Unlimited commands with embeds, aliases, cooldowns, role and channel restrictions, and actions like granting roles or replying in DMs.', true],
+  ['broadcast', 'Social feeds', 'YouTube, Twitch, Reddit and any RSS feed. Unlimited sources, custom announcement text and role pings.', true],
+  ['gift', 'Giveaways', 'Button entry with requirements — role, level, message count, account age — plus rerolls and automatic winner draws.', false],
+  ['ticket', 'Tickets', 'A one-button support panel, private channels, staff claiming, and full text transcripts sent to your archive channel.', false],
+  ['clock', 'Timers', 'Recurring scheduled messages with embeds, optional cleanup of the previous post, and per-timer pausing.', true],
+  ['music', 'Music', 'Queue, search, loop modes, shuffle, volume and playlist support in voice channels.', true],
+  ['list', 'Logs & counters', 'Message, member, role, channel, ban and voice logging with per-event channels, plus auto-updating member-count channels.', false],
+];
+
+document.getElementById('features').innerHTML = FEATURES.map(([ic, title, desc, premium]) => `
+  <article class="feature">
+    <div class="ico">${icon(ic, 21)}</div>
+    <h3>${title}</h3>
+    <p>${desc}</p>
+    ${premium ? '<span class="free">MEE6 Premium · free here</span>' : ''}
+  </article>`).join('');
+
+const COMPARE = [
+  ['Custom rank card design', 'Premium', 'Included'],
+  ['Unlimited custom commands', 'Premium', 'Included'],
+  ['Unlimited reaction roles', 'Premium', 'Included'],
+  ['Welcome images', 'Premium', 'Included'],
+  ['Scheduled timers', 'Premium', 'Included'],
+  ['More than 3 social feeds', 'Premium', 'Included'],
+  ['Music player', 'Premium', 'Included'],
+  ['XP multipliers per role or channel', 'Premium', 'Included'],
+  ['Server backups & data export', 'Premium', 'It is your own database'],
+];
+document.getElementById('compare-rows').innerHTML = COMPARE.map(([f, m, o]) => `
+  <tr><td>${f}</td>
+    <td><span class="pill warn">${m}</span></td>
+    <td><span class="pill on">${o}</span></td></tr>`).join('');
+
+fetch('/api/stats').then((r) => r.json()).then((s) => {
+  document.getElementById('live-stats').textContent = s.ready
+    ? `Online now · ${s.guilds} server${s.guilds === 1 ? '' : 's'} · ${s.members.toLocaleString()} members · ${s.commands} slash commands`
+    : 'Bot offline — add DISCORD_TOKEN to .env and restart to bring it online.';
+}).catch(() => {});
+</script>
+</body>
+</html>

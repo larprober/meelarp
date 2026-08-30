@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your servers · meelarp</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="aurora"></div>
+
+<header class="topbar">
+  <a class="brand" href="/"><span id="logo"></span> meelarp</a>
+  <span class="spacer"></span>
+  <span id="user"></span>
+  <a class="btn btn-ghost btn-sm" href="/logout" id="logout">Sign out</a>
+</header>
+
+<main class="main" style="max-width:940px;margin:0 auto">
+  <div class="page-head" style="margin-top:24px">
+    <h1>Pick a server</h1>
+    <p>These are the servers where you have Manage Server permission.</p>
+  </div>
+  <div id="content"><div class="center-screen"><div class="spinner"></div></div></div>
+</main>
+
+<script type="module">
+import { icon, logoMark } from '/icons.js';
+document.getElementById('logo').innerHTML = logoMark(30);
+document.getElementById('logout').insertAdjacentHTML('afterbegin', icon('logout', 15));
+
+const iconUrl = (g) => g.icon
+  ? `https://cdn.discordapp.com/icons/${g.id}/${g.icon}.png?size=96` : null;
+const initials = (name) => name.split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+
+const res = await fetch('/api/me');
+if (res.status === 401) { location.href = '/login'; }
+const data = await res.json();
+
+document.getElementById('user').innerHTML = `
+  <span class="user-chip"><img src="${data.user.avatarUrl}" alt="">${data.user.global_name ?? data.user.username}</span>`;
+
+const withBot = data.guilds.filter((g) => g.botPresent);
+const withoutBot = data.guilds.filter((g) => !g.botPresent);
+
+const card = (g) => `
+  <a class="list-item" href="${g.botPresent ? `/dashboard/${g.id}` : '/invite'}" style="text-decoration:none;color:inherit">
+    ${iconUrl(g) ? `<img class="guild-avatar" src="${iconUrl(g)}" alt="">`
+      : `<div class="guild-avatar">${initials(g.name)}</div>`}
+    <div class="meta">
+      <strong>${g.name}</strong>
+      <span>${g.botPresent ? `${g.memberCount?.toLocaleString() ?? '—'} members` : 'meelarp is not in this server yet'}</span>
+    </div>
+    ${g.botPresent
+      ? `<span class="pill on">Manage ${icon('chevron', 13)}</span>`
+      : `<span class="pill">Add meelarp ${icon('plus', 13)}</span>`}
+  </a>`;
+
+document.getElementById('content').innerHTML = `
+  ${withBot.length ? `<div class="card"><div class="card-head">
+      <div class="card-icon">${icon('bot', 19)}</div>
+      <div><h3>Ready to configure</h3><p>${withBot.length} server${withBot.length === 1 ? '' : 's'} running meelarp</p></div>
+    </div>${withBot.map(card).join('')}</div>` : `
+    <div class="empty">${icon('bot', 34)}<strong>meelarp is not in any of your servers yet</strong>
+      Add it to one to get started.<br><br>
+      <a class="btn btn-primary" href="/invite">Add meelarp to a server</a></div>`}
+
+  ${withoutBot.length ? `<div class="card"><div class="card-head">
+      <div class="card-icon">${icon('plus', 19)}</div>
+      <div><h3>Your other servers</h3><p>Invite meelarp to manage these too</p></div>
+    </div>${withoutBot.map(card).join('')}</div>` : ''}`;
+</script>
+</body>
+</html>

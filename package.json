@@ -1,0 +1,26 @@
+{
+  "name": "meelarp",
+  "version": "1.0.0",
+  "description": "meelarp - every MEE6 feature, premium included, self-hosted and free. Bot + dashboard.",
+  "type": "module",
+  "main": "src/index.js",
+  "engines": { "node": ">=22.5.0" },
+  "scripts": {
+    "start": "node src/index.js",
+    "bot": "node src/index.js --bot-only",
+    "web": "node src/index.js --web-only",
+    "deploy": "node src/bot/deploy-commands.js",
+    "setup": "node scripts/setup.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3"
+  },
+  "optionalDependencies": {
+    "@napi-rs/canvas": "^0.1.65",
+    "@discordjs/voice": "^0.18.0",
+    "libsodium-wrappers": "^0.7.15",
+    "youtube-sr": "^4.3.11"
+  },
+  "license": "MIT",
+  "private": true
+}

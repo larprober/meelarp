@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <clipPath id="mouth">
+      <path d="M133 245 A67 67 0 0 0 267 245 Z"/>
+    </clipPath>
+  </defs>
+  <rect width="400" height="400" rx="84" fill="#E0522B"/>
+  <circle cx="133" cy="155" r="27" fill="#000000"/>
+  <circle cx="267" cy="155" r="27" fill="#000000"/>
+  <path d="M133 245 A67 67 0 0 0 267 245 Z" fill="#000000"/>
+  <ellipse cx="200" cy="308" rx="54" ry="36" fill="#00E0A0" clip-path="url(#mouth)"/>
+</svg>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard · meelarp</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="aurora"></div>
+
+<header class="topbar">
+  <a class="brand" href="/servers"><span id="logo"></span> meelarp</a>
+  <span class="spacer"></span>
+  <a class="btn btn-ghost btn-sm" href="/servers" id="switch-btn">Switch server</a>
+  <span id="user"></span>
+  <a class="btn btn-ghost btn-sm btn-icon" href="/logout" title="Sign out" id="logout"></a>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div id="guild-card"></div>
+    <nav id="nav"></nav>
+  </aside>
+  <main class="main" id="main">
+    <div class="center-screen"><div class="spinner"></div><span style="color:var(--text-dim)">Loading server…</span></div>
+  </main>
+</div>
+
+<div id="toasts"></div>
+<div id="modal-root"></div>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>
